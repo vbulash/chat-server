@@ -7,14 +7,14 @@ install-deps:
 install-golangci-lint:
 	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0
 
-lint: install-golangci-lint
-	$(LOCAL_BIN)/golangci-lint run ./... --config .golangci.pipeline.yaml --fix
+lint:
+	$(LOCAL_BIN)/golangci-lint run ./... --config .golangci.pipeline.yaml
 
 get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 
-generate: install-deps
+generate:
 	make generate-chat-api
 
 generate-chat-api:
