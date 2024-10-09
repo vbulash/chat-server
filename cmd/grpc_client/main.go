@@ -2,25 +2,34 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
+	"log"
+	"math/big"
+	"time"
+
 	"github.com/brianvoe/gofakeit"
 	chat "github.com/vbulash/chat-server/pkg/chat_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"log"
-	"math/rand/v2"
-	"time"
 )
 
 const address = "localhost:50052"
+
+func closeConnection(conn *grpc.ClientConn) {
+	err := conn.Close()
+	if err != nil {
+		log.Fatalf("Фатальная ошибка закрытия коннекта к серверу: %v", err)
+	}
+}
 
 func main() {
 	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Фатальная ошибка коннекта к серверу: %v", err)
 	}
-	defer conn.Close()
+	defer closeConnection(conn)
 
 	client := chat.NewChatV1Client(conn)
 
@@ -29,7 +38,11 @@ func main() {
 
 	// Create
 	fmt.Println("Клиент: создание нового чата")
-	usernames := make([]string, rand.IntN(9)+1) // 1 .. 10
+	nBig, err := rand.Int(rand.Reader, big.NewInt(9))
+	if err != nil {
+		panic(err)
+	}
+	usernames := make([]string, nBig.Int64()+1) // 1 .. 10
 	for i := range usernames {
 		usernames[i] = gofakeit.Question()
 	}
