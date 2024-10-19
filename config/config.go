@@ -1,14 +1,16 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
-type ConfigStruct struct {
+// Env Структура для распаковки .env
+type Env struct {
 	Host     string
 	Database string
 	Username string
@@ -16,17 +18,20 @@ type ConfigStruct struct {
 	Port     int
 }
 
-var Config *ConfigStruct
+// Config Экземпляр конфигурации .env
+var Config *Env
 
+// NoteType Тип записи notes
 type NoteType struct {
-	Id        int        `db:"id"`
+	ID        int        `db:"id"`
 	Title     string     `db:"title"`
 	Body      string     `db:"body"`
 	CreatedAt *time.Time `db:"created_at"`
 	UpdatedAt *time.Time `db:"updated_at"`
 }
 
-func LoadConfig() *ConfigStruct {
+// LoadConfig Загрузка конфигурации из .env
+func LoadConfig() *Env {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Ошибка загрузки .env")
@@ -37,7 +42,7 @@ func LoadConfig() *ConfigStruct {
 		log.Fatalf("Ошибка преобразования DB_PORT из .env: %v\n", err)
 	}
 
-	return &ConfigStruct{
+	return &Env{
 		Host:     os.Getenv("DB_HOST"),
 		Database: os.Getenv("DB_DATABASE"),
 		Username: os.Getenv("DB_USER"),

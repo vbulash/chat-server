@@ -2,12 +2,17 @@ package operations
 
 import (
 	"crypto/rand"
+
 	"github.com/brianvoe/gofakeit"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+
 	"math/big"
+
+	// pq Используется sqlx для работы с postgres
+	_ "github.com/lib/pq"
 )
 
+// Seed Заполнение БД рандомными записями в рандомном количестве
 func Seed(db *sqlx.DB) bool {
 	tx := db.MustBegin()
 	// Рандомное количество добавляемых записей

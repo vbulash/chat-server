@@ -4,11 +4,12 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
-	"github.com/vbulash/chat-server/config"
-	"github.com/vbulash/chat-server/database/operations"
 	"log"
 	"math/big"
 	"time"
+
+	"github.com/vbulash/chat-server/config"
+	"github.com/vbulash/chat-server/database/operations"
 
 	"github.com/brianvoe/gofakeit"
 	chat "github.com/vbulash/chat-server/pkg/chat_v1"
