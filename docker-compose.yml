@@ -15,5 +15,12 @@ services:
       retries: 5
       timeout: 15s
     restart: unless-stopped
+  migrate:
+    build:
+      context: .
+      dockerfile: ./database/migrations/docker/Dockerfile
+    depends_on:
+      - postgres
+    restart: on-failure
 volumes:
   postgres_data:
