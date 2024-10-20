@@ -19,6 +19,7 @@ services:
     build:
       context: .
       dockerfile: ./database/migrations/docker/Dockerfile
+    command: bash migration.sh
     depends_on:
       - postgres
     restart: on-failure

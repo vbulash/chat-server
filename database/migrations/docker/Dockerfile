@@ -12,11 +12,10 @@ RUN chmod +x bin/goose
 
 WORKDIR /root
 
-ADD $MIGRATION_DIR/*.sql .
+ADD $MIGRATION_ROOT/*.sql .
 ADD $MIGRATION_DIR/migration.sh .
 ADD .env .
 ADD bin/goose .
 
 RUN chmod +x migration.sh
 
-ENTRYPOINT ["bash", "migration.sh"]
