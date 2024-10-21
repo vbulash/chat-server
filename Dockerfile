@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine AS builder
+FROM 1.23.2-bullseye AS builder
 
 COPY . /github.com/vbulash/chat_server/src/
 WORKDIR /github.com/vbulash/chat_server/src/
