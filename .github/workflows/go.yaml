@@ -45,7 +45,6 @@ jobs:
           TAG_NAME=$(echo $GITHUB_SHA | head -c7)
           docker buildx create --use
           docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME -f Dockerfile . 
-          go build -o ./bin/ -v ./...
 
   deploy_image:
     name: Развёртывание на сервере
@@ -61,8 +60,7 @@ jobs:
           envs: GITHUB_SHA, REGISTRY, IMAGE_NAME, CONTAINER_NAME
           script: |
             TAG_NAME=$(echo $GITHUB_SHA | head -c7)
-            docker login $REGISTRY
             docker stop $CONTAINER_NAME
             docker rm $CONTAINER_NAME
             docker pull $REGISTRY/$IMAGE_NAME:$TAG_NAME
-            docker run -d -p 50052:50052 --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME:$TAG_NAME
+            docker run -p 50052:50052 --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME:$TAG_NAME
