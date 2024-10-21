@@ -19,3 +19,4 @@ ADD bin/goose .
 
 RUN chmod +x migration.sh
 
+#ENTRYPOINT ["bash", "./migration.sh"]
