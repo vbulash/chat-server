@@ -12,5 +12,6 @@ FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /github.com/vbulash/chat_server/src/bin/chat_server .
 # COPY --from=builder /github.com/vbulash/chat_server/src/bin/chat_client .
+RUN ls -la .
 
 CMD ["./chat_server"]
