@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE notes (
+CREATE TABLE chats (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     body TEXT NOT NULL,
@@ -11,5 +11,5 @@ CREATE TABLE notes (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE notes;
+DROP TABLE chats;
 -- +goose StatementEnd

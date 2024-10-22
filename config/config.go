@@ -21,8 +21,8 @@ type Env struct {
 // Config Экземпляр конфигурации .env
 var Config *Env
 
-// NoteType Тип записи notes
-type NoteType struct {
+// ChatType Тип записи chats
+type ChatType struct {
 	ID        int        `db:"id"`
 	Title     string     `db:"title"`
 	Body      string     `db:"body"`

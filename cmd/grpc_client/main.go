@@ -38,13 +38,13 @@ func main() {
 
 	//operations.Seed(db)
 
-	notes, err := operations.Get(db)
+	chats, err := operations.Get(db)
 	if err != nil {
 		log.Fatalf("Фатальная ошибка получения данных из базs данных: %v", err)
 	}
-	log.Println("Получены записи из таблицы notes:")
-	for index := range *notes {
-		log.Printf("%#v", (*notes)[index])
+	log.Println("Получены записи из таблицы chats:")
+	for index := range *chats {
+		log.Printf("%#v", (*chats)[index])
 	}
 
 	// Week 1

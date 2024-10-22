@@ -24,7 +24,7 @@ func Seed(db *sqlx.DB) bool {
 	//
 	for range records {
 		tx.MustExec(
-			"INSERT INTO notes (title, body) VALUES ($1, $2)", gofakeit.Question(), gofakeit.Sentence(20))
+			"INSERT INTO chats (title, body) VALUES ($1, $2)", gofakeit.Question(), gofakeit.Sentence(20))
 	}
 	err = tx.Commit()
 	if err != nil {

@@ -10,13 +10,13 @@ import (
 	"github.com/vbulash/chat-server/config"
 )
 
-// Get Получение данных из таблицы notes
-func Get(db *sqlx.DB) (*[]config.NoteType, error) {
-	notes := []config.NoteType{}
-	err := db.Select(&notes, "SELECT * FROM notes")
+// Get Получение данных из таблицы chats
+func Get(db *sqlx.DB) (*[]config.ChatType, error) {
+	chats := []config.ChatType{}
+	err := db.Select(&chats, "SELECT id, title, body, created_at, updated_at FROM chats")
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
-	return &notes, nil
+	return &chats, nil
 }
