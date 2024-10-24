@@ -55,7 +55,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: ".env,bin/chat_server"
+          source: "bin/chat_server"
           target: $SSH_TARGET
       - name: Запуск чат-сервера
         uses: appleboy/ssh-action@v1.0.0
@@ -65,5 +65,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd $SSH_TARGET
-            kill $(pgrep chat_server) || false
-            ./chat_server
+#            kill $(pgrep chat_server) || false
+#            ./chat_server
