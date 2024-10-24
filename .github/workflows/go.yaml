@@ -42,7 +42,7 @@ jobs:
         run: |
           go mod download
           go build -o ./bin/chat_server cmd/grpc_server/main.go
-          tar --create artifacts.tar .env ./bin/chat_server
+          tar -cvf artifacts.tar .env ./bin/chat_server
       - name: Сохранение артефактов
         uses: actions/upload-artifact@v4
         with:
