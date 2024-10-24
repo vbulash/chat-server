@@ -5,10 +5,9 @@ on: [push]
 #  pull_request:
 #    branches: [ main, master ]
 #
+
 env:
-  REGISTRY: registry.vbulash.site
-  IMAGE_NAME: chat_server
-  CONTAINER_NAME: chat_server_container
+  SSH_TARGET: /home/vbulash/learn/week2
 
 jobs:
   linter:
@@ -27,7 +26,7 @@ jobs:
           version: v1.61
           args: --timeout=30m --config=./.golangci.pipeline.yaml
 
-  image-build-and-push:
+  build:
     name: Сборка
     runs-on: ubuntu-latest
     steps:
@@ -41,25 +40,29 @@ jobs:
         run: go mod tidy
       - name: Сборка и push образа докера
         run: |
-          TAG_NAME=$(echo $GITHUB_SHA | head -c7)
-          docker buildx create --use
-          docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME -f Dockerfile . 
+          go mod download
+          go build -o ./bin/chat_server cmd/grpc_server/main.go
 
-  deploy_image:
+  deploy:
     name: Развёртывание на сервере
-    needs: image-build-and-push
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Развертывание на домашнем сервере через SSH action
+      - name: Развертывание на домашнем сервере
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: ".env,bin/chat_server"
+          target: $SSH_TARGET
+      - name: Запуск чат-сервера
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: GITHUB_SHA, REGISTRY, IMAGE_NAME, CONTAINER_NAME
           script: |
-            TAG_NAME=$(echo $GITHUB_SHA | head -c7)
-            docker stop $CONTAINER_NAME
-            docker rm $CONTAINER_NAME
-            docker pull $REGISTRY/$IMAGE_NAME:$TAG_NAME
-            docker run -p 50052:50052 --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME:$TAG_NAME
+            cd $SSH_TARGET
+            kill $(pgrep chat_server) || false
+            ./chat_server
