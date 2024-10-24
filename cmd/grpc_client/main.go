@@ -8,6 +8,9 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/vbulash/chat-server/config"
+	"github.com/vbulash/chat-server/database/operations"
+
 	"github.com/brianvoe/gofakeit"
 	chat "github.com/vbulash/chat-server/pkg/chat_v1"
 	"google.golang.org/grpc"
@@ -25,6 +28,26 @@ func closeConnection(conn *grpc.ClientConn) {
 }
 
 func main() {
+	// Week 2
+	config.Config = config.LoadConfig()
+
+	db, err := operations.InitDb()
+	if err != nil {
+		log.Fatalf("Фатальная ошибка коннекта к базе данных: %v", err)
+	}
+
+	//operations.Seed(db)
+
+	chats, err := operations.Get(db)
+	if err != nil {
+		log.Fatalf("Фатальная ошибка получения данных из базs данных: %v", err)
+	}
+	log.Println("Получены записи из таблицы chats:")
+	for index := range *chats {
+		log.Printf("%#v", (*chats)[index])
+	}
+
+	// Week 1
 	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Фатальная ошибка коннекта к серверу: %v", err)
