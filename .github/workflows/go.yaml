@@ -7,7 +7,7 @@ on: [push]
 #
 
 env:
-  SSH_TARGET: /home/vbulash/learn/week2
+  SSH_TARGET: /home/vbulash/learn
 
 jobs:
   linter:
@@ -42,20 +42,20 @@ jobs:
         run: |
           go mod download
           go build -o ./bin/chat_server cmd/grpc_server/main.go
-          ls -la bin
 
   deploy:
     name: Развёртывание на сервере
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - run: ls -la ./bin/chat_server
       - name: Развертывание на домашнем сервере
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "bin/chat_server"
+          source: "./bin/chat_server"
           target: $SSH_TARGET
       - name: Запуск чат-сервера
         uses: appleboy/ssh-action@v1.0.0
