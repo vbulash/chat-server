@@ -12,5 +12,6 @@ FROM alpine:3.20.3
 WORKDIR /root/
 COPY --from=builder /github.com/vbulash/chat_server/src/bin/chat_server .
 # COPY --from=builder /github.com/vbulash/chat_server/src/bin/chat_client .
+RUN chmod +x ./chat_server
 
 CMD ["./chat_server"]
