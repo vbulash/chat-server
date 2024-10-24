@@ -7,7 +7,7 @@ on: [push]
 #
 
 env:
-  SSH_TARGET: /home/vbulash/learn
+  SSH_TARGET: /home/vbulash/learn/week2
 
 jobs:
   linter:
@@ -42,20 +42,29 @@ jobs:
         run: |
           go mod download
           go build -o ./bin/chat_server cmd/grpc_server/main.go
+          tar --create artifacts.tar .env ./bin/chat_server
+      - name: Сохранение артефактов
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: artifacts.tar
 
   deploy:
     name: Развёртывание на сервере
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - run: ls -rla .
-      - name: Развертывание на домашнем сервере
+      - name: Распаковка артефактов
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts
+      - name: Развертывание артефактов на домашнем сервере
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "./bin/chat_server"
+          source: "artifacts.tar"
           target: $SSH_TARGET
       - name: Запуск чат-сервера
         uses: appleboy/ssh-action@v1.0.0
@@ -65,5 +74,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd $SSH_TARGET
+            ls -la .
 #            kill $(pgrep chat_server) || false
 #            ./chat_server
