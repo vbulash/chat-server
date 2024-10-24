@@ -38,10 +38,11 @@ jobs:
           cache-dependency-path: go.sum
       - name: Установка зависимостей
         run: go mod tidy
-      - name: Сборка и push образа докера
+      - name: Сборка исполняемого файла чат-сервера
         run: |
           go mod download
           go build -o ./bin/chat_server cmd/grpc_server/main.go
+          ls -la bin
 
   deploy:
     name: Развёртывание на сервере
