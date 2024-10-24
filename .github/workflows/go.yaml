@@ -72,6 +72,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: SSH_TARGET
           script: |
             cd $SSH_TARGET
             tar -xvf artifacts.tar 
