@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
+	"github.com/vbulash/chat-server/config"
 	"log"
 	"math/big"
 	"time"
@@ -15,8 +16,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-const address = "localhost:50052"
-
 func closeConnection(conn *grpc.ClientConn) {
 	err := conn.Close()
 	if err != nil {
@@ -25,6 +24,13 @@ func closeConnection(conn *grpc.ClientConn) {
 }
 
 func main() {
+	conf, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Ошибка загрузки .env: %v", err)
+	}
+	config.Config = conf
+
+	address := fmt.Sprintf("%s:%d", config.Config.ServerHost, config.Config.ServerPort)
 	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Фатальная ошибка коннекта к серверу: %v", err)

@@ -6,14 +6,14 @@ import (
 	"log"
 	"net"
 
+	"github.com/vbulash/chat-server/config"
+
 	"github.com/brianvoe/gofakeit"
 	"github.com/golang/protobuf/ptypes/empty"
 	chat "github.com/vbulash/chat-server/pkg/chat_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
-
-const grpcPort = ":50052"
 
 type server struct {
 	chat.UnimplementedChatV1Server
@@ -37,7 +37,13 @@ func (s *server) SendMessage(_ context.Context, _ *chat.SendMessageRequest) (*em
 }
 
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s", grpcPort))
+	conf, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Ошибка загрузки .env: %v", err)
+	}
+	config.Config = conf
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Config.ServerPort))
 	if err != nil {
 		log.Fatalf("Фатальная ошибка запуска / прослушивания: %v", err)
 	}
