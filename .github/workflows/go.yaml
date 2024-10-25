@@ -78,7 +78,7 @@ jobs:
             tar -xvf artifacts.tar 
             rm artifacts.tar
             mv .env.staging .env
-            mv supervisor-chat-server.conf /etc/supuervisor/conf.d
+            mv supervisor-chat-server.conf /etc/supervisor/conf.d
             supervisorctl reload
             supervisorctl update
             supervisorctl restart chat-server
