@@ -7,7 +7,7 @@ on: [push]
 #
 
 env:
-  SSH_TARGET: /home/vbulash/learn/week3
+  SSH_TARGET: /home/vbulash/learn/chat/week3
 
 jobs:
   linter:
@@ -41,8 +41,8 @@ jobs:
       - name: Сборка исполняемого файла чат-сервера
         run: |
           go mod download
-          go build -o chat_server cmd/grpc_server/main.go
-          tar -cvf artifacts.tar .env.staging chat_server supervisor-chat-server.conf
+          go build -o chat-server cmd/grpc_server/main.go
+          tar -cvf artifacts.tar .env.staging chat-server supervisor-chat-server.conf
       - name: Сохранение артефактов
         uses: actions/upload-artifact@v4
         with:
@@ -79,6 +79,7 @@ jobs:
             rm artifacts.tar
             mv .env.staging .env
             mv supervisor-chat-server.conf /etc/supervisor/conf.d
-            sudo supervisorctl reload
-            sudo supervisorctl update
-            sudo supervisorctl restart chat-server
+# TODO обождать ответ Stackoveflow - не получается запустить обновление supervisorctl
+#            sudo supervisorctl reread
+#            sudo supervisorctl update
+#            sudo supervisorctl restart chat-server
