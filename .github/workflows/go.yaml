@@ -79,6 +79,6 @@ jobs:
             rm artifacts.tar
             mv .env.staging .env
             mv supervisor-chat-server.conf /etc/supervisor/conf.d
-            sudo -S supervisorctl reload
-            sudo -S supervisorctl update
-            sudo -S supervisorctl restart chat-server
+            sudo supervisorctl reload
+            sudo supervisorctl update
+            sudo supervisorctl restart chat-server
