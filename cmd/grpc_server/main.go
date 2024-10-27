@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"github.com/vbulash/chat-server/internal/repository/chat"
 
@@ -74,7 +75,8 @@ func (s *server) Delete(ctx context.Context, request *desc.DeleteRequest) (*empt
 }
 
 func main() {
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute) // Достаточно для интерактивной отладки
+	defer cancel()
 
 	conf, err := config.LoadConfig()
 	if err != nil {

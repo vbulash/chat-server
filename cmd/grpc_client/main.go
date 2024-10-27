@@ -37,7 +37,7 @@ func main() {
 
 	client := chat.NewChatV2Client(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 
 	// CreateSend
@@ -66,7 +66,6 @@ func main() {
 	fmt.Println()
 	fmt.Println("Клиент: получение чата")
 	fmt.Printf("Клиент: получаем информацию чата ID = %d\n", id)
-	// Get(ctx context.Context, request *desc.GetRequest) (*desc.GetResponse, error)
 	response2, err := client.Get(ctx, &chat.GetRequest{Id: id})
 	if err != nil {
 		log.Fatalf("Клиент: фатальная ошибка получения записи чата ID = %d: %v", id, err)

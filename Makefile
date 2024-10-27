@@ -38,5 +38,5 @@ migration-status:
 migration-migrate:
 	$(LOCAL_BIN)/goose -dir $(MIGRATION_DIR) postgres $(MIGRATION_DSN) up -v
 
-migration-rollbacK:
+migration-rollback:
 	$(LOCAL_BIN)/goose -dir $(MIGRATION_DIR) postgres $(MIGRATION_DSN) down -v
