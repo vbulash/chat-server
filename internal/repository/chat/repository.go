@@ -3,12 +3,13 @@ package chat
 import (
 	"context"
 	"encoding/json"
+	"time"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/vbulash/chat-server/internal/repository"
 	"github.com/vbulash/chat-server/internal/repository/chat/model"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"time"
 
 	desc "github.com/vbulash/chat-server/pkg/chat_v2"
 )
