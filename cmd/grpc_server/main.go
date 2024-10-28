@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/vbulash/chat-server/internal/converter"
+	"github.com/vbulash/chat-server/internal/model"
+	"github.com/vbulash/chat-server/internal/service"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 	"net"
 	"os"
@@ -11,7 +15,7 @@ import (
 	"github.com/vbulash/chat-server/internal/repository/chat"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/vbulash/chat-server/internal/repository"
+	chat2 "github.com/vbulash/chat-server/internal/service/chat"
 
 	"github.com/vbulash/chat-server/config"
 
@@ -23,15 +27,15 @@ import (
 
 type server struct {
 	desc.UnimplementedChatV2Server
-	chatRepository repository.ChatRepository
+	serviceLayer service.ChatService
 }
 
 func (s *server) CreateSend(ctx context.Context, request *desc.CreateSendRequest) (*desc.CreateSendResponse, error) {
 	fmt.Println("Сервер: создание и отправка чата")
 
-	id, err := s.chatRepository.CreateSend(ctx, &desc.ChatInfo{
-		Recipients: request.Recipients,
-		Text:       request.Text,
+	id, err := s.serviceLayer.CreateSend(ctx, &model.ChatInfo{
+		Recipients: converter.DescRecipientsToModelRecipients(request.Recipients),
+		Body:       request.GetText(),
 	})
 	if err != nil {
 		return nil, err
@@ -44,25 +48,32 @@ func (s *server) CreateSend(ctx context.Context, request *desc.CreateSendRequest
 func (s *server) Get(ctx context.Context, request *desc.GetRequest) (*desc.GetResponse, error) {
 	fmt.Println("Сервер: получение чата")
 
-	chatObj, err := s.chatRepository.Get(ctx, request.Id)
+	chatObj, err := s.serviceLayer.Get(ctx, request.Id)
 	if err != nil {
 		return nil, err
 	}
+
+	var createdAt, updatedAt *timestamppb.Timestamp
+	if chatObj.UpdatedAt.Valid {
+		updatedAt = timestamppb.New(chatObj.UpdatedAt.Time)
+	}
+	createdAt = timestamppb.New(chatObj.CreatedAt)
+
 	return &desc.GetResponse{
-		Id:         chatObj.Id,
-		Recipients: chatObj.Info.Recipients,
-		Text:       chatObj.Info.Text,
-		CreatedAt:  chatObj.CreatedAt,
-		UpdatedAt:  chatObj.UpdatedAt,
+		Id:         chatObj.ID,
+		Recipients: converter.ModelRecipientsToDescRecipients(chatObj.Info.Recipients),
+		Text:       chatObj.Info.Body,
+		CreatedAt:  createdAt,
+		UpdatedAt:  updatedAt,
 	}, nil
 }
 
 func (s *server) Change(ctx context.Context, request *desc.ChangeRequest) (*empty.Empty, error) {
 	fmt.Println("Сервер: обновление чата")
 
-	err := s.chatRepository.Change(ctx, request.Id, &desc.ChatInfo{
-		Recipients: request.Recipients,
-		Text:       request.Text,
+	err := s.serviceLayer.Change(ctx, request.Id, &model.ChatInfo{
+		Recipients: converter.DescRecipientsToModelRecipients(request.Recipients),
+		Body:       request.GetText(),
 	})
 	return &empty.Empty{}, err
 }
@@ -70,7 +81,7 @@ func (s *server) Change(ctx context.Context, request *desc.ChangeRequest) (*empt
 func (s *server) Delete(ctx context.Context, request *desc.DeleteRequest) (*empty.Empty, error) {
 	fmt.Println("Сервер: удаление чата")
 
-	err := s.chatRepository.Delete(ctx, request.Id)
+	err := s.serviceLayer.Delete(ctx, request.Id)
 	return &empty.Empty{}, err
 }
 
@@ -94,6 +105,7 @@ func main() {
 	}
 
 	chatRepo := chat.NewChatRepository(pool)
+	serviceLayer := chat2.NewServiceLayer(chatRepo)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Config.ServerPort))
 	if err != nil {
@@ -103,7 +115,7 @@ func main() {
 	s := grpc.NewServer()
 	reflection.Register(s)
 	desc.RegisterChatV2Server(s, &server{
-		chatRepository: chatRepo,
+		serviceLayer: serviceLayer,
 	})
 
 	log.Printf("Сервер прослушивает: %v", lis.Addr())

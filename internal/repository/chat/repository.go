@@ -14,16 +14,16 @@ import (
 	desc "github.com/vbulash/chat-server/pkg/chat_v2"
 )
 
-type repo struct {
+type repoLayer struct {
 	db *pgxpool.Pool
 }
 
 // NewChatRepository Создание репо
 func NewChatRepository(db *pgxpool.Pool) repository.ChatRepository {
-	return &repo{db: db}
+	return &repoLayer{db: db}
 }
 
-func (r *repo) CreateSend(ctx context.Context, request *desc.ChatInfo) (int64, error) {
+func (r *repoLayer) CreateSend(ctx context.Context, request *desc.ChatInfo) (int64, error) {
 	recipients := make([]model.UserIdentity, len(request.Recipients))
 	for index, item := range request.Recipients {
 		recipients[index] = model.UserIdentity{
@@ -51,7 +51,7 @@ func (r *repo) CreateSend(ctx context.Context, request *desc.ChatInfo) (int64, e
 	return id, nil
 }
 
-func (r *repo) Get(ctx context.Context, id int64) (*desc.Chat, error) {
+func (r *repoLayer) Get(ctx context.Context, id int64) (*desc.Chat, error) {
 	query, args, err := squirrel.
 		Select("id, recipients, body, created_at, updated_at").
 		From("chats").
@@ -94,7 +94,7 @@ func (r *repo) Get(ctx context.Context, id int64) (*desc.Chat, error) {
 	}, nil
 }
 
-func (r *repo) Change(ctx context.Context, id int64, request *desc.ChatInfo) error {
+func (r *repoLayer) Change(ctx context.Context, id int64, request *desc.ChatInfo) error {
 	bUpdated := false
 	updates := make(map[string]interface{})
 	if len(request.Recipients) > 0 {
@@ -130,7 +130,7 @@ func (r *repo) Change(ctx context.Context, id int64, request *desc.ChatInfo) err
 	return err
 }
 
-func (r *repo) Delete(ctx context.Context, id int64) error {
+func (r *repoLayer) Delete(ctx context.Context, id int64) error {
 	query, args, err := squirrel.Delete("chats").
 		Where(squirrel.Eq{"id": id}).
 		PlaceholderFormat(squirrel.Dollar).
