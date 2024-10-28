@@ -1,127 +1,14 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"log"
-	"net"
-	"os"
-	"time"
 
-	"github.com/vbulash/chat-server/internal/converter"
-	"github.com/vbulash/chat-server/internal/model"
-	"github.com/vbulash/chat-server/internal/service"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
-	"github.com/vbulash/chat-server/internal/repository/chat"
-
-	"github.com/jackc/pgx/v5/pgxpool"
-	chat2 "github.com/vbulash/chat-server/internal/service/chat"
-
-	"github.com/vbulash/chat-server/config"
-
-	"github.com/golang/protobuf/ptypes/empty"
-	desc "github.com/vbulash/chat-server/pkg/chat_v2"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+	"github.com/vbulash/chat-server/internal/api"
 )
 
-type server struct {
-	desc.UnimplementedChatV2Server
-	serviceLayer service.ChatService
-}
-
-func (s *server) CreateSend(ctx context.Context, request *desc.CreateSendRequest) (*desc.CreateSendResponse, error) {
-	fmt.Println("Сервер: создание и отправка чата")
-
-	id, err := s.serviceLayer.CreateSend(ctx, &model.ChatInfo{
-		Recipients: converter.DescRecipientsToModelRecipients(request.Recipients),
-		Body:       request.GetText(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &desc.CreateSendResponse{
-		Id: id,
-	}, nil
-}
-
-func (s *server) Get(ctx context.Context, request *desc.GetRequest) (*desc.GetResponse, error) {
-	fmt.Println("Сервер: получение чата")
-
-	chatObj, err := s.serviceLayer.Get(ctx, request.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	var createdAt, updatedAt *timestamppb.Timestamp
-	if chatObj.UpdatedAt.Valid {
-		updatedAt = timestamppb.New(chatObj.UpdatedAt.Time)
-	}
-	createdAt = timestamppb.New(chatObj.CreatedAt)
-
-	return &desc.GetResponse{
-		Id:         chatObj.ID,
-		Recipients: converter.ModelRecipientsToDescRecipients(chatObj.Info.Recipients),
-		Text:       chatObj.Info.Body,
-		CreatedAt:  createdAt,
-		UpdatedAt:  updatedAt,
-	}, nil
-}
-
-func (s *server) Change(ctx context.Context, request *desc.ChangeRequest) (*empty.Empty, error) {
-	fmt.Println("Сервер: обновление чата")
-
-	err := s.serviceLayer.Change(ctx, request.Id, &model.ChatInfo{
-		Recipients: converter.DescRecipientsToModelRecipients(request.Recipients),
-		Body:       request.GetText(),
-	})
-	return &empty.Empty{}, err
-}
-
-func (s *server) Delete(ctx context.Context, request *desc.DeleteRequest) (*empty.Empty, error) {
-	fmt.Println("Сервер: удаление чата")
-
-	err := s.serviceLayer.Delete(ctx, request.Id)
-	return &empty.Empty{}, err
-}
-
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute) // Достаточно для интерактивной отладки
-	defer cancel()
-
-	conf, err := config.LoadConfig()
+	err := api.AppRun()
 	if err != nil {
-		log.Fatalf("Ошибка загрузки .env: %v", err)
-	}
-	config.Config = conf
-
-	poolConfig, err := pgxpool.ParseConfig(os.Getenv("DB_DSN"))
-	if err != nil {
-		log.Fatalf("Ошибка конфигурации pgxpool: %v", err)
-	}
-	pool, err := pgxpool.NewWithConfig(ctx, poolConfig)
-	if err != nil {
-		log.Fatalf("Ошибка коннекта к БД: %v", err)
-	}
-
-	chatRepo := chat.NewChatRepository(pool)
-	serviceLayer := chat2.NewServiceLayer(chatRepo)
-
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Config.ServerPort))
-	if err != nil {
-		log.Fatalf("Фатальная ошибка запуска / прослушивания: %v", err)
-	}
-
-	s := grpc.NewServer()
-	reflection.Register(s)
-	desc.RegisterChatV2Server(s, &server{
-		serviceLayer: serviceLayer,
-	})
-
-	log.Printf("Сервер прослушивает: %v", lis.Addr())
-
-	if err = s.Serve(lis); err != nil {
-		log.Fatalf("Фатальная ошибка запуска: %v", err)
+		log.Fatal(err)
 	}
 }
