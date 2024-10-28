@@ -3,14 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/vbulash/chat-server/internal/converter"
-	"github.com/vbulash/chat-server/internal/model"
-	"github.com/vbulash/chat-server/internal/service"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 	"net"
 	"os"
 	"time"
+
+	"github.com/vbulash/chat-server/internal/converter"
+	"github.com/vbulash/chat-server/internal/model"
+	"github.com/vbulash/chat-server/internal/service"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/vbulash/chat-server/internal/repository/chat"
 

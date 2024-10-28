@@ -2,9 +2,10 @@ package converter
 
 import (
 	"database/sql"
+	"time"
+
 	"github.com/vbulash/chat-server/internal/model"
 	desc "github.com/vbulash/chat-server/pkg/chat_v2"
-	"time"
 )
 
 // ModelRecipientsToDescRecipients Преобразование из модели в GRPC
@@ -41,6 +42,7 @@ func ModelChatInfoToDescChatInfo(info *model.ChatInfo) *desc.ChatInfo {
 	}
 }
 
+// DescChatInfoToModelChatInfo Преобразование из GRPC в модель
 func DescChatInfoToModelChatInfo(info *desc.ChatInfo) *model.ChatInfo {
 	return &model.ChatInfo{
 		Recipients: DescRecipientsToModelRecipients(info.Recipients),
@@ -48,6 +50,7 @@ func DescChatInfoToModelChatInfo(info *desc.ChatInfo) *model.ChatInfo {
 	}
 }
 
+// DescChatToModelChat Преобразование из GRPC в модель
 func DescChatToModelChat(info *desc.Chat) *model.Chat {
 	var createdAt time.Time
 	var updateAt sql.NullTime

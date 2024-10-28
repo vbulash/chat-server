@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+
 	"github.com/vbulash/chat-server/internal/converter"
 	"github.com/vbulash/chat-server/internal/model"
 	"github.com/vbulash/chat-server/internal/repository"
@@ -12,6 +13,7 @@ type serviceLayer struct {
 	repoLayer repository.ChatRepository
 }
 
+// NewServiceLayer Создание сервисного слоя
 func NewServiceLayer(repo repository.ChatRepository) service.ChatService {
 	return &serviceLayer{repoLayer: repo}
 }
