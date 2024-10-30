@@ -1,14 +1,22 @@
 package main
 
 import (
+	"context"
 	"log"
 
-	"github.com/vbulash/chat-server/internal/api"
+	"github.com/vbulash/chat-server/internal/app"
 )
 
 func main() {
-	err := api.AppRun()
+	ctx := context.Background()
+
+	application, err := app.NewApp(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Фатальная ошибка инициализации приложения: %s", err.Error())
+	}
+
+	err = application.Run()
+	if err != nil {
+		log.Fatalf("Фатальная ошибка запуска приложения: %s", err.Error())
 	}
 }

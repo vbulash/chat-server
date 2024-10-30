@@ -13,8 +13,8 @@ type serviceLayer struct {
 	repoLayer repository.ChatRepository
 }
 
-// NewServiceLayer Создание сервисного слоя
-func NewServiceLayer(repo repository.ChatRepository) service.ChatService {
+// NewChatService Создание сервисного слоя
+func NewChatService(repo repository.ChatRepository) service.ChatService {
 	return &serviceLayer{repoLayer: repo}
 }
 

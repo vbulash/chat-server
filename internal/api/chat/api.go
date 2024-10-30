@@ -12,19 +12,19 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// API Слой API
-type API struct {
+// ChatsAPI Слой ChatsAPI
+type ChatsAPI struct {
 	desc.UnimplementedChatV2Server
 	serviceLayer service.ChatService
 }
 
-// NewAPI Создание API
-func NewAPI(serviceLayer service.ChatService) *API {
-	return &API{serviceLayer: serviceLayer}
+// NewAPI Создание ChatsAPI
+func NewAPI(serviceLayer service.ChatService) *ChatsAPI {
+	return &ChatsAPI{serviceLayer: serviceLayer}
 }
 
 // CreateSend Создание чата
-func (apiLayer *API) CreateSend(ctx context.Context, request *desc.CreateSendRequest) (*desc.CreateSendResponse, error) {
+func (apiLayer *ChatsAPI) CreateSend(ctx context.Context, request *desc.CreateSendRequest) (*desc.CreateSendResponse, error) {
 	fmt.Println("Сервер: создание и отправка чата")
 
 	id, err := apiLayer.serviceLayer.CreateSend(ctx, &model.ChatInfo{
@@ -40,7 +40,7 @@ func (apiLayer *API) CreateSend(ctx context.Context, request *desc.CreateSendReq
 }
 
 // Get Получение чата
-func (apiLayer *API) Get(ctx context.Context, request *desc.GetRequest) (*desc.GetResponse, error) {
+func (apiLayer *ChatsAPI) Get(ctx context.Context, request *desc.GetRequest) (*desc.GetResponse, error) {
 	fmt.Println("Сервер: получение чата")
 
 	chatObj, err := apiLayer.serviceLayer.Get(ctx, request.Id)
@@ -64,7 +64,7 @@ func (apiLayer *API) Get(ctx context.Context, request *desc.GetRequest) (*desc.G
 }
 
 // Change Изменение чата
-func (apiLayer *API) Change(ctx context.Context, request *desc.ChangeRequest) (*empty.Empty, error) {
+func (apiLayer *ChatsAPI) Change(ctx context.Context, request *desc.ChangeRequest) (*empty.Empty, error) {
 	fmt.Println("Сервер: обновление чата")
 
 	err := apiLayer.serviceLayer.Change(ctx, request.Id, &model.ChatInfo{
@@ -75,7 +75,7 @@ func (apiLayer *API) Change(ctx context.Context, request *desc.ChangeRequest) (*
 }
 
 // Delete Удаление чата
-func (apiLayer *API) Delete(ctx context.Context, request *desc.DeleteRequest) (*empty.Empty, error) {
+func (apiLayer *ChatsAPI) Delete(ctx context.Context, request *desc.DeleteRequest) (*empty.Empty, error) {
 	fmt.Println("Сервер: удаление чата")
 
 	err := apiLayer.serviceLayer.Delete(ctx, request.Id)
