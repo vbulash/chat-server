@@ -3,8 +3,9 @@ package pg
 import (
 	"context"
 	"fmt"
-	"github.com/vbulash/chat-server/internal/client/db"
 	"log"
+
+	"github.com/vbulash/chat-server/internal/client/db"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/jackc/pgx/v5"
@@ -18,6 +19,7 @@ type pg struct {
 	dbc *pgxpool.Pool
 }
 
+// NewDB ...
 func NewDB(dbc *pgxpool.Pool) db.DB {
 	return &pg{
 		dbc: dbc,

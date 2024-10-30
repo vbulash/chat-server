@@ -3,8 +3,9 @@ package chat
 import (
 	"context"
 	"encoding/json"
-	"github.com/vbulash/chat-server/internal/client/db"
 	"time"
+
+	"github.com/vbulash/chat-server/internal/client/db"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/vbulash/chat-server/internal/repository"

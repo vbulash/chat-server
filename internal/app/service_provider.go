@@ -2,10 +2,11 @@ package app
 
 import (
 	"context"
+	"log"
+
 	"github.com/vbulash/chat-server/internal/client/db"
 	"github.com/vbulash/chat-server/internal/client/db/pg"
 	"github.com/vbulash/chat-server/internal/closer"
-	"log"
 
 	api "github.com/vbulash/chat-server/internal/api/chat"
 	chatAPI "github.com/vbulash/chat-server/internal/api/chat"

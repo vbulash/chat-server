@@ -7,10 +7,13 @@ import (
 )
 
 const (
-	PlaceholderDollar   = "$"
+	// PlaceholderDollar ...
+	PlaceholderDollar = "$"
+	// PlaceholderQuestion ...
 	PlaceholderQuestion = "?"
 )
 
+// Pretty ...
 func Pretty(query string, placeholder string, args ...any) string {
 	for i, param := range args {
 		var value string
