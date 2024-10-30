@@ -2,9 +2,11 @@ package app
 
 import (
 	"context"
+	"github.com/vbulash/chat-server/internal/client/db"
+	"github.com/vbulash/chat-server/internal/client/db/pg"
+	"github.com/vbulash/chat-server/internal/closer"
 	"log"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	api "github.com/vbulash/chat-server/internal/api/chat"
 	chatAPI "github.com/vbulash/chat-server/internal/api/chat"
 	"github.com/vbulash/chat-server/internal/config"
@@ -15,8 +17,9 @@ import (
 )
 
 type serviceProvider struct {
-	env          *config.Env
-	pool         *pgxpool.Pool
+	env *config.Env
+
+	dbClient     db.Client
 	repoLayer    *repository.ChatRepository
 	serviceLayer *service.ChatService
 	apiLayer     *api.ChatsAPI
@@ -39,27 +42,30 @@ func (s *serviceProvider) Env() *config.Env {
 	return s.env
 }
 
-// Pool Пул соединений Postgres
-func (s *serviceProvider) Pool(ctx context.Context) *pgxpool.Pool {
-	if s.pool == nil {
-		poolConfig, err := pgxpool.ParseConfig(s.Env().DSN)
+// DBClient Клиент БД
+func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
+	if s.dbClient == nil {
+		client, err := pg.New(ctx, s.Env().DSN)
 		if err != nil {
-			log.Fatalf("Ошибка конфигурации pgxpool: %v", err)
-		}
-		pool, err := pgxpool.NewWithConfig(ctx, poolConfig)
-		if err != nil {
-			log.Fatalf("Ошибка коннекта к БД: %v", err)
+			log.Fatalf("Ошибка создания db клиента: %v", err)
 		}
 
-		s.pool = pool
+		err = client.DB().Ping(ctx)
+		if err != nil {
+			log.Fatalf("Ошибка пинга db: %v", err)
+		}
+
+		closer.Add(client.Close)
+
+		s.dbClient = client
 	}
-	return s.pool
+	return s.dbClient
 }
 
 // RepoLayer Слой репозитория
 func (s *serviceProvider) RepoLayer(ctx context.Context) *repository.ChatRepository {
 	if s.repoLayer == nil {
-		repoLayer := chatRepository.NewChatRepository(s.Pool(ctx))
+		repoLayer := chatRepository.NewChatRepository(s.DBClient(ctx))
 		s.repoLayer = &repoLayer
 	}
 	return s.repoLayer

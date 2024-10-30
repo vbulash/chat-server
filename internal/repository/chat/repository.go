@@ -3,10 +3,10 @@ package chat
 import (
 	"context"
 	"encoding/json"
+	"github.com/vbulash/chat-server/internal/client/db"
 	"time"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/vbulash/chat-server/internal/repository"
 	"github.com/vbulash/chat-server/internal/repository/chat/model"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -15,11 +15,11 @@ import (
 )
 
 type repoLayer struct {
-	db *pgxpool.Pool
+	db db.Client
 }
 
 // NewChatRepository Создание репо
-func NewChatRepository(db *pgxpool.Pool) repository.ChatRepository {
+func NewChatRepository(db db.Client) repository.ChatRepository {
 	return &repoLayer{db: db}
 }
 
@@ -43,8 +43,12 @@ func (r *repoLayer) CreateSend(ctx context.Context, request *desc.ChatInfo) (int
 		return 0, nil
 	}
 
+	q := db.Query{
+		Name:     "chat-server.CreateSend",
+		QueryRaw: query,
+	}
 	var id int64
-	err = r.db.QueryRow(ctx, query, args...).Scan(&id)
+	err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id)
 	if err != nil {
 		return 0, nil
 	}
@@ -57,12 +61,18 @@ func (r *repoLayer) Get(ctx context.Context, id int64) (*desc.Chat, error) {
 		From("chats").
 		Where(squirrel.Eq{"id": id}).
 		PlaceholderFormat(squirrel.Dollar).
+		Limit(1).
 		ToSql()
 	if err != nil {
 		return nil, err
 	}
+
+	q := db.Query{
+		Name:     "chat-server.Get",
+		QueryRaw: query,
+	}
 	var chat model.Chat
-	err = r.db.QueryRow(ctx, query, args...).
+	err = r.db.DB().QueryRowContext(ctx, q, args...).
 		Scan(&chat.ID, &chat.Info.Recipients, &chat.Info.Body, &chat.CreatedAt, &chat.UpdatedAt)
 	if err != nil {
 		return nil, err
@@ -122,11 +132,17 @@ func (r *repoLayer) Change(ctx context.Context, id int64, request *desc.ChatInfo
 		SetMap(updates).
 		Where(squirrel.Eq{"id": id}).
 		PlaceholderFormat(squirrel.Dollar).
+		Limit(1).
 		ToSql()
 	if err != nil {
 		return err
 	}
-	_, err = r.db.Exec(ctx, query, args...)
+
+	q := db.Query{
+		Name:     "chat-server.Change",
+		QueryRaw: query,
+	}
+	_, err = r.db.DB().ExecContext(ctx, q, args...)
 	return err
 }
 
@@ -134,10 +150,16 @@ func (r *repoLayer) Delete(ctx context.Context, id int64) error {
 	query, args, err := squirrel.Delete("chats").
 		Where(squirrel.Eq{"id": id}).
 		PlaceholderFormat(squirrel.Dollar).
+		Limit(1).
 		ToSql()
 	if err != nil {
 		return err
 	}
-	_, err = r.db.Exec(ctx, query, args...)
+
+	q := db.Query{
+		Name:     "chat-server.Delete",
+		QueryRaw: query,
+	}
+	_, err = r.db.DB().ExecContext(ctx, q, args...)
 	return err
 }
