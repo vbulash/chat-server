@@ -133,7 +133,6 @@ func (r *repoLayer) Change(ctx context.Context, id int64, request *desc.ChatInfo
 		SetMap(updates).
 		Where(squirrel.Eq{"id": id}).
 		PlaceholderFormat(squirrel.Dollar).
-		Limit(1).
 		ToSql()
 	if err != nil {
 		return err
@@ -151,7 +150,6 @@ func (r *repoLayer) Delete(ctx context.Context, id int64) error {
 	query, args, err := squirrel.Delete("chats").
 		Where(squirrel.Eq{"id": id}).
 		PlaceholderFormat(squirrel.Dollar).
-		Limit(1).
 		ToSql()
 	if err != nil {
 		return err
