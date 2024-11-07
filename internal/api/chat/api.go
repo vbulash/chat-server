@@ -34,6 +34,7 @@ func (apiLayer *ChatsAPI) CreateSend(ctx context.Context, request *desc.CreateSe
 	if err != nil {
 		return nil, err
 	}
+
 	return &desc.CreateSendResponse{
 		Id: id,
 	}, nil
@@ -48,36 +49,37 @@ func (apiLayer *ChatsAPI) Get(ctx context.Context, request *desc.GetRequest) (*d
 		return nil, err
 	}
 
-	var createdAt, updatedAt *timestamppb.Timestamp
+	var updatedAt *timestamppb.Timestamp
 	if chatObj.UpdatedAt.Valid {
 		updatedAt = timestamppb.New(chatObj.UpdatedAt.Time)
 	}
-	createdAt = timestamppb.New(chatObj.CreatedAt)
 
 	return &desc.GetResponse{
 		Id:         chatObj.ID,
 		Recipients: converter.ModelRecipientsToDescRecipients(chatObj.Info.Recipients),
 		Text:       chatObj.Info.Body,
-		CreatedAt:  createdAt,
+		CreatedAt:  timestamppb.New(chatObj.CreatedAt),
 		UpdatedAt:  updatedAt,
 	}, nil
 }
 
 // Change Изменение чата
 func (apiLayer *ChatsAPI) Change(ctx context.Context, request *desc.ChangeRequest) (*empty.Empty, error) {
-	fmt.Println("Сервер: обновление чата")
+	//fmt.Println("Сервер: обновление чата")
 
 	err := apiLayer.serviceLayer.Change(ctx, request.Id, &model.ChatInfo{
 		Recipients: converter.DescRecipientsToModelRecipients(request.Recipients),
 		Body:       request.GetText(),
 	})
+
 	return &empty.Empty{}, err
 }
 
 // Delete Удаление чата
 func (apiLayer *ChatsAPI) Delete(ctx context.Context, request *desc.DeleteRequest) (*empty.Empty, error) {
-	fmt.Println("Сервер: удаление чата")
+	//fmt.Println("Сервер: удаление чата")
 
 	err := apiLayer.serviceLayer.Delete(ctx, request.Id)
+
 	return &empty.Empty{}, err
 }

@@ -24,8 +24,8 @@ type serviceProvider struct {
 
 	dbClient     db.Client
 	txManager    db.TxManager
-	repoLayer    *repository.ChatRepository
-	serviceLayer *service.ChatService
+	repoLayer    repository.ChatRepository
+	serviceLayer service.ChatService
 	apiLayer     *api.ChatsAPI
 }
 
@@ -63,6 +63,7 @@ func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 
 		s.dbClient = client
 	}
+
 	return s.dbClient
 }
 
@@ -76,31 +77,34 @@ func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
 }
 
 // RepoLayer Слой репозитория
-func (s *serviceProvider) RepoLayer(ctx context.Context) *repository.ChatRepository {
+func (s *serviceProvider) RepoLayer(ctx context.Context) repository.ChatRepository {
 	if s.repoLayer == nil {
 		repoLayer := chatRepository.NewChatRepository(s.DBClient(ctx))
-		s.repoLayer = &repoLayer
+		s.repoLayer = repoLayer
 	}
+
 	return s.repoLayer
 }
 
 // ServiceLayer Слой сервиса
-func (s *serviceProvider) ServiceLayer(ctx context.Context) *service.ChatService {
+func (s *serviceProvider) ServiceLayer(ctx context.Context) service.ChatService {
 	if s.serviceLayer == nil {
 		serviceLayer := chatService.NewChatService(
-			*s.RepoLayer(ctx),
+			s.RepoLayer(ctx),
 			s.TxManager(ctx),
 		)
-		s.serviceLayer = &serviceLayer
+		s.serviceLayer = serviceLayer
 	}
+
 	return s.serviceLayer
 }
 
 // APILayer Слой API
 func (s *serviceProvider) APILayer(ctx context.Context) *api.ChatsAPI {
 	if s.apiLayer == nil {
-		apiLayer := chatAPI.NewAPI(*s.ServiceLayer(ctx))
+		apiLayer := chatAPI.NewAPI(s.ServiceLayer(ctx))
 		s.apiLayer = apiLayer
 	}
+
 	return s.apiLayer
 }

@@ -35,20 +35,22 @@ func (s *serviceLayer) CreateSend(ctx context.Context, info *model.ChatInfo) (in
 		// ..
 		return nil
 	})
+
 	return id, err
 }
 
 func (s *serviceLayer) Get(ctx context.Context, id int64) (*model.Chat, error) {
 	var chat *model.Chat
 	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		nonConverted, err := s.repoLayer.Get(ctx, id)
+		var err error
+		chat, err = s.repoLayer.Get(ctx, id)
 		if err != nil {
 			return err
 		}
-		chat = converter.DescChatToModelChat(nonConverted)
 		// ..
 		return nil
 	})
+
 	return chat, err
 }
 
@@ -61,6 +63,7 @@ func (s *serviceLayer) Change(ctx context.Context, id int64, info *model.ChatInf
 		// ..
 		return nil
 	})
+
 	return err
 }
 
@@ -73,5 +76,6 @@ func (s *serviceLayer) Delete(ctx context.Context, id int64) error {
 		// ..
 		return nil
 	})
+
 	return err
 }

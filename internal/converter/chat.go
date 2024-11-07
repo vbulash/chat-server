@@ -2,7 +2,6 @@ package converter
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/vbulash/chat-server/internal/model"
 	desc "github.com/vbulash/chat-server/pkg/chat_v2"
@@ -52,9 +51,7 @@ func DescChatInfoToModelChatInfo(info *desc.ChatInfo) *model.ChatInfo {
 
 // DescChatToModelChat Преобразование из GRPC в модель
 func DescChatToModelChat(info *desc.Chat) *model.Chat {
-	var createdAt time.Time
 	var updateAt sql.NullTime
-	createdAt = info.CreatedAt.AsTime()
 	_ = updateAt.Scan(info.UpdatedAt.AsTime())
 
 	translatedInfo := DescChatInfoToModelChatInfo(info.Info)
@@ -62,7 +59,7 @@ func DescChatToModelChat(info *desc.Chat) *model.Chat {
 	return &model.Chat{
 		ID:        info.Id,
 		Info:      *translatedInfo,
-		CreatedAt: createdAt,
+		CreatedAt: info.CreatedAt.AsTime(),
 		UpdatedAt: updateAt,
 	}
 }
