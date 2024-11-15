@@ -7,7 +7,8 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/vbulash/chat-server/internal/api/chat"
+	"github.com/vbulash/chat-server/internal/repository"
+
 	"github.com/vbulash/chat-server/internal/converter"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -15,19 +16,19 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/vbulash/chat-server/internal/model"
-	"github.com/vbulash/chat-server/internal/service"
-	serviceMocks "github.com/vbulash/chat-server/internal/service/mocks"
+	repositoryMocks "github.com/vbulash/chat-server/internal/repository/mocks"
+	"github.com/vbulash/chat-server/internal/service/chat"
 	desc "github.com/vbulash/chat-server/pkg/chat_v2"
 )
 
 func TestCreate(t *testing.T) {
 	t.Parallel()
 
-	type chatServiceMockFunc func(mc *minimock.Controller) service.ChatService
+	type chatRepositoryMockFunc func(mc *minimock.Controller) repository.ChatRepository
 
 	type args struct {
 		ctx     context.Context
-		request *desc.CreateSendRequest
+		request *model.ChatInfo
 	}
 
 	nBig, err := rand.Int(rand.Reader, big.NewInt(9))
@@ -52,7 +53,7 @@ func TestCreate(t *testing.T) {
 
 		serviceErr = fmt.Errorf("ошибка при тестировании")
 
-		request = &desc.CreateSendRequest{
+		request = &desc.ChatInfo{
 			Recipients: recipients,
 			Text:       text,
 		}
@@ -61,31 +62,27 @@ func TestCreate(t *testing.T) {
 			Recipients: converter.DescRecipientsToModelRecipients(recipients),
 			Body:       text,
 		}
-
-		response = &desc.CreateSendResponse{
-			Id: id,
-		}
 	)
 	defer t.Cleanup(mc.Finish)
 
 	tests := []struct {
-		name            string
-		args            args
-		want            *desc.CreateSendResponse
-		err             error
-		chatServiceMock chatServiceMockFunc
+		name               string
+		args               args
+		want               int64
+		err                error
+		chatRepositoryMock chatRepositoryMockFunc
 	}{
 		{
 			name: "Успешный вариант",
 			args: args{
 				ctx:     ctx,
-				request: request,
+				request: info,
 			},
-			want: response,
+			want: id,
 			err:  nil,
-			chatServiceMock: func(mc *minimock.Controller) service.ChatService {
-				mock := serviceMocks.NewChatServiceMock(mc)
-				mock.CreateSendMock.Expect(ctx, info).Return(id, nil)
+			chatRepositoryMock: func(mc *minimock.Controller) repository.ChatRepository {
+				mock := repositoryMocks.NewChatRepositoryMock(mc)
+				mock.CreateSendMock.Expect(ctx, request).Return(id, nil)
 				return mock
 			},
 		},
@@ -93,13 +90,13 @@ func TestCreate(t *testing.T) {
 			name: "Неуспешный вариант",
 			args: args{
 				ctx:     ctx,
-				request: request,
+				request: info,
 			},
-			want: nil,
+			want: 0,
 			err:  serviceErr,
-			chatServiceMock: func(mc *minimock.Controller) service.ChatService {
-				mock := serviceMocks.NewChatServiceMock(mc)
-				mock.CreateSendMock.Expect(ctx, info).Return(0, serviceErr)
+			chatRepositoryMock: func(mc *minimock.Controller) repository.ChatRepository {
+				mock := repositoryMocks.NewChatRepositoryMock(mc)
+				mock.CreateSendMock.Expect(ctx, request).Return(0, serviceErr)
 				return mock
 			},
 		},
@@ -110,10 +107,11 @@ func TestCreate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			userServiceMock := tt.chatServiceMock(mc)
-			api := chat.NewAPI(userServiceMock)
+			userRepositoryMock := tt.chatRepositoryMock(mc)
+			// Упрощенный вариант инициализации сервиса - без менеджера транзакций
+			service := chat.NewChatService(userRepositoryMock, nil)
 
-			resHandler, err := api.CreateSend(tt.args.ctx, tt.args.request)
+			resHandler, err := service.CreateSend(tt.args.ctx, tt.args.request)
 			require.Equal(t, tt.err, err)
 			require.Equal(t, tt.want, resHandler)
 		})
