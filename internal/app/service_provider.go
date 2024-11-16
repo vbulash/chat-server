@@ -4,11 +4,10 @@ import (
 	"context"
 	"log"
 
-	"github.com/vbulash/chat-server/internal/client/db/transaction"
-
-	"github.com/vbulash/chat-server/internal/client/db"
-	"github.com/vbulash/chat-server/internal/client/db/pg"
-	"github.com/vbulash/chat-server/internal/closer"
+	"github.com/vbulash/platform_common/pkg/client/db"
+	"github.com/vbulash/platform_common/pkg/client/db/pg"
+	"github.com/vbulash/platform_common/pkg/client/db/transaction"
+	"github.com/vbulash/platform_common/pkg/closer"
 
 	api "github.com/vbulash/chat-server/internal/api/chat"
 	chatAPI "github.com/vbulash/chat-server/internal/api/chat"

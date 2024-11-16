@@ -5,8 +5,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/vbulash/chat-server/internal/closer"
 	desc "github.com/vbulash/chat-server/pkg/chat_v2"
+	"github.com/vbulash/platform_common/pkg/closer"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"

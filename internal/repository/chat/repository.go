@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/vbulash/chat-server/internal/client/db"
+	"github.com/vbulash/platform_common/pkg/client/db"
 
 	"github.com/Masterminds/squirrel"
 	outermodel "github.com/vbulash/chat-server/internal/model"
