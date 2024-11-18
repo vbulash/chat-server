@@ -1,4 +1,4 @@
-package chat
+package pg
 
 import (
 	"context"
@@ -7,12 +7,13 @@ import (
 	"strings"
 	"time"
 
+	innermodel "github.com/vbulash/chat-server/internal/repository/chat/pg/model"
+
 	"github.com/vbulash/platform_common/pkg/client/db"
 
 	"github.com/Masterminds/squirrel"
 	outermodel "github.com/vbulash/chat-server/internal/model"
 	"github.com/vbulash/chat-server/internal/repository"
-	innermodel "github.com/vbulash/chat-server/internal/repository/chat/model"
 	desc "github.com/vbulash/chat-server/pkg/chat_v2"
 )
 
