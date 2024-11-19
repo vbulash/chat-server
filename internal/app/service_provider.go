@@ -13,7 +13,6 @@ import (
 
 	"github.com/vbulash/platform_common/pkg/client/db"
 	"github.com/vbulash/platform_common/pkg/client/db/pg"
-	"github.com/vbulash/platform_common/pkg/client/db/transaction"
 	"github.com/vbulash/platform_common/pkg/closer"
 
 	api "github.com/vbulash/chat-server/internal/api/chat"
@@ -35,7 +34,6 @@ type serviceProvider struct {
 	redisClient cache.RedisClient
 
 	dbClient     db.Client
-	txManager    db.TxManager
 	repoLayer    repository.ChatRepository
 	serviceLayer service.ChatService
 	apiLayer     *api.ChatsAPI
@@ -125,15 +123,6 @@ func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	return s.dbClient
 }
 
-// TxManager Менеджер транзакций
-func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
-	if s.txManager == nil {
-		s.txManager = transaction.NewTransactionManager(s.DBClient(ctx).DB())
-	}
-
-	return s.txManager
-}
-
 func (s *serviceProvider) RedisPool() *redigo.Pool {
 	if s.redisPool == nil {
 		s.redisPool = &redigo.Pool{
@@ -180,22 +169,10 @@ func (s *serviceProvider) RepoLayer(ctx context.Context) repository.ChatReposito
 func (s *serviceProvider) ServiceLayer(ctx context.Context) service.ChatService {
 	var serviceLayer service.ChatService
 	if s.serviceLayer == nil {
-		switch s.StorageConfig().Mode() {
-		case redisMode:
-			serviceLayer = chatService.NewChatService(
-				s.RepoLayer(ctx),
-				nil,
-			)
-			break
-		case pgMode:
-			serviceLayer = chatService.NewChatService(
-				s.RepoLayer(ctx),
-				s.TxManager(ctx),
-			)
-			break
-		default:
-			serviceLayer = nil
-		}
+		serviceLayer = chatService.NewChatService(
+			s.RepoLayer(ctx),
+		)
+
 		s.serviceLayer = serviceLayer
 	}
 

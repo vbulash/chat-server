@@ -64,13 +64,19 @@ func (apiLayer *ChatsAPI) Change(ctx context.Context, request *desc.ChangeReques
 		Recipients: converter.DescRecipientsToModelRecipients(request.Recipients),
 		Body:       request.GetText(),
 	})
+	if err != nil {
+		return nil, err
+	}
 
-	return &empty.Empty{}, err
+	return &empty.Empty{}, nil
 }
 
 // Delete Удаление чата
 func (apiLayer *ChatsAPI) Delete(ctx context.Context, request *desc.DeleteRequest) (*empty.Empty, error) {
 	err := apiLayer.serviceLayer.Delete(ctx, request.Id)
+	if err != nil {
+		return nil, err
+	}
 
-	return &empty.Empty{}, err
+	return &empty.Empty{}, nil
 }

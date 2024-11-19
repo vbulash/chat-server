@@ -91,8 +91,7 @@ func TestDelete(t *testing.T) {
 			t.Parallel()
 
 			userRepositoryMock := tt.chatRepositoryMock(mc)
-			// Упрощенный вариант инициализации сервиса - без менеджера транзакций
-			service := chat.NewChatService(userRepositoryMock, nil)
+			service := chat.NewChatService(userRepositoryMock)
 
 			err := service.Delete(tt.args.ctx, tt.args.id)
 			require.Equal(t, tt.err, err)

@@ -32,21 +32,21 @@ func (r *repoLayer) CreateSend(ctx context.Context, request *desc.ChatInfo) (int
 	if err != nil {
 		return 0, nil
 	}
-	id := gofakeit.Uint32()
+	id := gofakeit.Int64()
 	chat := &modelRepo.Chat{
-		ID:         int64(id),
+		ID:         id,
 		Recipients: string(recipients),
 		Body:       request.Text,
 		CreatedAt:  time.Now().UnixNano(),
 	}
 
-	idStr := strconv.FormatInt(int64(id), 10)
+	idStr := strconv.FormatInt(id, 10)
 	err = r.cl.HashSet(ctx, idStr, chat)
 	if err != nil {
 		return 0, err
 	}
 
-	return int64(id), nil
+	return id, nil
 }
 
 func (r *repoLayer) Get(ctx context.Context, id int64) (*model.Chat, error) {

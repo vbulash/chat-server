@@ -117,8 +117,7 @@ func TestGet(t *testing.T) {
 			t.Parallel()
 
 			userRepositoryMock := tt.chatRepositoryMock(mc)
-			// Упрощенный вариант инициализации сервиса - без менеджера транзакций
-			service := chat.NewChatService(userRepositoryMock, nil)
+			service := chat.NewChatService(userRepositoryMock)
 
 			response, err := service.Get(tt.args.ctx, tt.args.id)
 			require.Equal(t, tt.err, err)
