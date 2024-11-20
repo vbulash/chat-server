@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -25,3 +26,6 @@ type Chat struct {
 	CreatedAt time.Time
 	UpdatedAt sql.NullTime
 }
+
+// ErrorChatNotFound ...
+var ErrorChatNotFound = errors.New("Пользователь не найден")
